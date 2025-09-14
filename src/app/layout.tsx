@@ -17,7 +17,6 @@ export const metadata: Metadata = {
   description: 'A secure and fast URL shortener service. Transform long URLs into short, shareable links with our simple and reliable tool.',
   keywords: 'URL shortener, link shortener, short links, URL converter, link management',
   authors: [{ name: 'URL Shortener Team' }],
-  viewport: 'width=device-width, initial-scale=1',
   robots: 'index, follow',
   openGraph: {
     title: 'URL Shortener - Transform Long URLs into Short Links',
@@ -28,8 +27,14 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary',
     title: 'URL Shortener - Transform Long URLs into Short Links',
-    description: 'A secure and fast URL shortener service. Transform long URLs into short, shareable links.',
+    description: 'A secure and fast URL Shortener service. Transform long URLs into short, shareable links.',
   },
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#FFFFFF',
 };
 
 export default function RootLayout({

@@ -43,7 +43,11 @@ describe('Short Code Generation Service', () => {
   };
 
   // Helper function to mock database responses
-  const mockDatabaseResponse = (exists: boolean, error?: any) => {
+  interface SupabaseError {
+    message: string;
+    code: string;
+  }
+  const mockDatabaseResponse = (exists: boolean, error?: SupabaseError) => {
     const mockSelect = {
       eq: jest.fn().mockReturnThis(),
       limit: jest.fn().mockReturnThis(),
@@ -55,7 +59,7 @@ describe('Short Code Generation Service', () => {
     
     mockSupabaseAdmin.from.mockReturnValue({
       select: jest.fn().mockReturnValue(mockSelect)
-    } as any);
+    });
   };
 
   beforeEach(() => {
@@ -112,7 +116,7 @@ describe('Short Code Generation Service', () => {
       
       mockSupabaseAdmin.from.mockReturnValue({
         select: jest.fn().mockReturnValue(mockSelect)
-      } as any);
+      });
 
       const result = await generateUniqueShortCode({ length: 6 });
 
@@ -218,8 +222,8 @@ describe('Short Code Generation Service', () => {
 
     it('should handle edge cases', () => {
       expect(isValidShortCodeFormat('')).toBe(false); // Empty string
-      expect(isValidShortCodeFormat(null as any)).toBe(false); // Null
-      expect(isValidShortCodeFormat(undefined as any)).toBe(false); // Undefined
+      expect(isValidShortCodeFormat(null)).toBe(false); // Null
+      expect(isValidShortCodeFormat(undefined)).toBe(false); // Undefined
       expect(isValidShortCodeFormat(123 as any)).toBe(false); // Number
     });
   });
@@ -253,7 +257,7 @@ describe('Short Code Generation Service', () => {
       
       mockSupabaseAdmin.from.mockReturnValue({
         select: jest.fn().mockReturnValue(mockSelect)
-      } as any);
+      });
 
       const result = await generateUniqueShortCode({ length: 6 });
 
@@ -276,7 +280,7 @@ describe('Short Code Generation Service', () => {
       
       mockSupabaseAdmin.from.mockReturnValue({
         select: jest.fn().mockReturnValue(mockSelect)
-      } as any);
+      });
 
       const result = await generateUniqueShortCode({ length: 6 });
 
@@ -305,7 +309,7 @@ describe('Short Code Generation Service', () => {
       
       mockSupabaseAdmin.from.mockReturnValue({
         select: jest.fn().mockReturnValue(mockSelect)
-      } as any);
+      });
 
       await generateUniqueShortCode({ length: 6 });
 

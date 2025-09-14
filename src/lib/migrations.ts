@@ -20,7 +20,7 @@ import * as path from 'path';
 interface MigrationResult {
   success: boolean;
   message: string;
-  error?: any;
+  error?: Error | { message: string; code: string } | null;
 }
 
 /**
