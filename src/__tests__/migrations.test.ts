@@ -218,7 +218,7 @@ describe('Database Migrations - Story 1.2', () => {
         'Additional: NOT NULL constraints': true
       };
 
-      Object.entries(acceptanceCriteria).forEach(([criteria, met]) => {
+      Object.entries(acceptanceCriteria).forEach(([_criteria, met]) => {
         expect(met).toBe(true);
       });
     });

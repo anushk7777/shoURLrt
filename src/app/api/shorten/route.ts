@@ -50,6 +50,92 @@ function isValidUrl(url: string): boolean {
 }
 
 /**
+ * Basic security validation for URLs
+ * Checks for potentially malicious patterns and self-referencing URLs
+ * @param url - The URL string to validate
+ * @param requestOrigin - The origin of the current request to prevent loops
+ * @returns boolean indicating if URL passes security checks
+ */
+function isSecureUrl(url: string, requestOrigin: string): boolean {
+  try {
+    const urlObj = new URL(url);
+    
+    // Prevent redirect loops by checking if URL points back to our domain
+    if (urlObj.origin === requestOrigin) {
+      return false;
+    }
+    
+    // Basic checks for suspicious patterns
+    const suspiciousPatterns = [
+      /javascript:/i,
+      /data:/i,
+      /vbscript:/i,
+      /file:/i,
+      /ftp:/i
+    ];
+    
+    return !suspiciousPatterns.some(pattern => pattern.test(url));
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Simple in-memory rate limiting
+ * Tracks requests per IP address with a sliding window
+ */
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const RATE_LIMIT_MAX_REQUESTS = 10; // 10 requests per minute
+
+/**
+ * Check if request should be rate limited
+ * @param clientIP - The client IP address
+ * @returns boolean indicating if request should be blocked
+ */
+function isRateLimited(clientIP: string): boolean {
+  const now = Date.now();
+  const clientData = rateLimitMap.get(clientIP);
+  
+  if (!clientData || now > clientData.resetTime) {
+    // Reset or initialize rate limit for this IP
+    rateLimitMap.set(clientIP, {
+      count: 1,
+      resetTime: now + RATE_LIMIT_WINDOW
+    });
+    return false;
+  }
+  
+  if (clientData.count >= RATE_LIMIT_MAX_REQUESTS) {
+    return true;
+  }
+  
+  clientData.count++;
+  return false;
+}
+
+/**
+ * Get client IP address from request headers
+ * @param request - The NextRequest object
+ * @returns string representing the client IP
+ */
+function getClientIP(request: NextRequest): string {
+  // Check various headers for the real IP (considering proxies/load balancers)
+  const forwarded = request.headers.get('x-forwarded-for');
+  if (forwarded) {
+    return forwarded.split(',')[0].trim();
+  }
+  
+  const realIP = request.headers.get('x-real-ip');
+  if (realIP) {
+    return realIP;
+  }
+  
+  // Fallback to a default IP for development
+  return '127.0.0.1';
+}
+
+/**
  * POST handler for URL shortening
  * 
  * @param request - The incoming request with URL to shorten
@@ -57,6 +143,17 @@ function isValidUrl(url: string): boolean {
  */
 export async function POST(request: NextRequest): Promise<NextResponse<ShortenResponse>> {
   try {
+    // Get client IP for rate limiting
+    const clientIP = getClientIP(request);
+    
+    // Check rate limiting
+    if (isRateLimited(clientIP)) {
+      return NextResponse.json(
+        { success: false, error: 'Rate limit exceeded. Please try again later.' },
+        { status: 429 }
+      );
+    }
+
     // Parse request body
     const body: ShortenRequest = await request.json();
     const { url } = body;
@@ -72,6 +169,15 @@ export async function POST(request: NextRequest): Promise<NextResponse<ShortenRe
     if (!isValidUrl(url)) {
       return NextResponse.json(
         { success: false, error: 'Please enter a valid URL starting with http:// or https://' },
+        { status: 400 }
+      );
+    }
+
+    // Security validation
+    const requestOrigin = request.headers.get('origin') || request.nextUrl.origin;
+    if (!isSecureUrl(url, requestOrigin)) {
+      return NextResponse.json(
+        { success: false, error: 'URL failed security validation. Suspicious or self-referencing URLs are not allowed.' },
         { status: 400 }
       );
     }

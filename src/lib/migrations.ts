@@ -14,13 +14,20 @@ import { supabase, supabaseAdmin } from './supabase';
 import * as fs from 'fs';
 import * as path from 'path';
 
+interface SupabaseRpcError {
+  message: string;
+  code: string;
+  details?: string;
+  hint?: string;
+}
+
 /**
  * Interface for migration result tracking
  */
 interface MigrationResult {
   success: boolean;
   message: string;
-  error?: Error | { message: string; code: string } | null;
+  error?: Error | SupabaseRpcError | null;
 }
 
 /**
@@ -46,7 +53,7 @@ export async function runMigration(migrationFileName: string): Promise<Migration
     const sqlContent = fs.readFileSync(migrationPath, 'utf8');
     
     // Execute the SQL against Supabase
-    const { data, error } = await supabase.rpc('exec_sql', {
+    const { data: _data, error } = await supabase.rpc('exec_sql', {
       sql_query: sqlContent
     });
 
@@ -104,7 +111,7 @@ export async function createLinksTable(): Promise<MigrationResult> {
     `;
 
     // Execute the SQL using Supabase's raw SQL execution
-    const { data, error } = await supabaseAdmin.rpc('exec_sql', {
+    const { data: _data, error } = await supabaseAdmin.rpc('exec_sql', {
       sql_query: createTableSQL
     });
 
@@ -153,7 +160,7 @@ export async function createLinksTable(): Promise<MigrationResult> {
 export async function validateLinksTable(): Promise<MigrationResult> {
   try {
     // Test basic table access
-    const { data, error } = await supabase
+    const { data: _data, error } = await supabase
       .from('links')
       .select('*')
       .limit(1);
@@ -218,7 +225,7 @@ export async function rollbackLinksTable(): Promise<MigrationResult> {
       DROP TABLE IF EXISTS public.links;
     `;
 
-    const { data, error } = await supabase.rpc('exec_sql', {
+    const { data: _data, error } = await supabase.rpc('exec_sql', {
       sql_query: rollbackSQL
     });
 
