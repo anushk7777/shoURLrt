@@ -141,7 +141,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<SafeBrows
  * @param request Next.js request object
  * @returns JSON response with API information
  */
-export async function GET(_request: NextRequest): Promise<NextResponse> {
+export async function GET(): Promise<NextResponse> {
   try {
     // Check if API is properly configured
     const client = getSafeBrowsingClient();
@@ -328,7 +328,7 @@ function getClientIp(request: NextRequest): string {
  * @param request Next.js request object
  * @returns CORS headers response
  */
-export async function OPTIONS(_request: NextRequest): Promise<NextResponse> {
+export async function OPTIONS(): Promise<NextResponse> {
   return new NextResponse(null, {
     status: 200,
     headers: {

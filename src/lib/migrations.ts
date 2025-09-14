@@ -53,7 +53,7 @@ export async function runMigration(migrationFileName: string): Promise<Migration
     const sqlContent = fs.readFileSync(migrationPath, 'utf8');
     
     // Execute the SQL against Supabase
-    const { data: _data, error } = await supabase.rpc('exec_sql', {
+    const { error } = await supabase.rpc('exec_sql', {
       sql_query: sqlContent
     });
 
@@ -111,7 +111,7 @@ export async function createLinksTable(): Promise<MigrationResult> {
     `;
 
     // Execute the SQL using Supabase's raw SQL execution
-    const { data: _data, error } = await supabaseAdmin.rpc('exec_sql', {
+    const { error } = await supabaseAdmin.rpc('exec_sql', {
       sql_query: createTableSQL
     });
 
@@ -160,7 +160,7 @@ export async function createLinksTable(): Promise<MigrationResult> {
 export async function validateLinksTable(): Promise<MigrationResult> {
   try {
     // Test basic table access
-    const { data: _data, error } = await supabase
+    const { error } = await supabase
       .from('links')
       .select('*')
       .limit(1);
@@ -225,7 +225,7 @@ export async function rollbackLinksTable(): Promise<MigrationResult> {
       DROP TABLE IF EXISTS public.links;
     `;
 
-    const { data: _data, error } = await supabase.rpc('exec_sql', {
+    const { error } = await supabase.rpc('exec_sql', {
       sql_query: rollbackSQL
     });
 

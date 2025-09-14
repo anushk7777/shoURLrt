@@ -341,7 +341,7 @@ export class SafeBrowsingClient {
    * Update rate limit information from API response headers
    * @param response HTTP response from API
    */
-  private updateRateLimitInfo(_response: Response): void {
+  private updateRateLimitInfo(): void {
     // Google Safe Browsing API doesn't provide rate limit headers,
     // so we implement conservative client-side tracking
     this.rateLimitInfo.remaining = Math.max(0, this.rateLimitInfo.remaining - 1);
