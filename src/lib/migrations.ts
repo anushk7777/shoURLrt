@@ -69,11 +69,11 @@ export async function runMigration(migrationFileName: string): Promise<Migration
       success: true,
       message: `Migration ${migrationFileName} executed successfully`
     };
-  } catch (error) {
+  } catch (error: unknown) {
     return {
       success: false,
-      message: `Migration execution error: ${error}`,
-      error
+      message: `Migration execution error: ${error instanceof Error ? error.message : String(error)}`,
+      error: error instanceof Error ? error : null
     };
   }
 }
@@ -111,6 +111,12 @@ export async function createLinksTable(): Promise<MigrationResult> {
     `;
 
     // Execute the SQL using Supabase's raw SQL execution
+    if (!supabaseAdmin) {
+      return {
+        success: false,
+        message: 'Supabase admin client is not initialized.',
+      };
+    }
     const { error } = await supabaseAdmin.rpc('exec_sql', {
       sql_query: createTableSQL
     });
@@ -142,11 +148,11 @@ export async function createLinksTable(): Promise<MigrationResult> {
       success: true,
       message: 'Links table created successfully with all constraints and indexes'
     };
-  } catch (error) {
+  } catch (error: unknown) {
     return {
       success: false,
-      message: `Error creating links table: ${error}`,
-      error
+      message: `Error creating links table: ${error instanceof Error ? error.message : String(error)}`,
+      error: error instanceof Error ? error : null
     };
   }
 }
@@ -202,11 +208,11 @@ export async function validateLinksTable(): Promise<MigrationResult> {
       success: true,
       message: 'Links table validation completed successfully'
     };
-  } catch (error) {
+  } catch (error: unknown) {
     return {
       success: false,
-      message: `Validation error: ${error}`,
-      error
+      message: `Validation error: ${error instanceof Error ? error.message : String(error)}`,
+      error: error instanceof Error ? error : null
     };
   }
 }
@@ -241,11 +247,11 @@ export async function rollbackLinksTable(): Promise<MigrationResult> {
       success: true,
       message: 'Links table rollback completed successfully'
     };
-  } catch (error) {
+  } catch (error: unknown) {
     return {
       success: false,
-      message: `Rollback error: ${error}`,
-      error
+      message: `Rollback error: ${error instanceof Error ? error.message : String(error)}`,
+      error: error instanceof Error ? error : null
     };
   }
 }

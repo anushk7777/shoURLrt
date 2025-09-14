@@ -3,6 +3,12 @@ import '@testing-library/jest-dom';
 // Polyfill for Request and Response in Node.js environment
 if (typeof global.Request === 'undefined') {
   global.Request = class Request {
+    url: string;
+    method: string;
+    headers: Headers;
+    body: any;
+    _bodyInit: any;
+
     constructor(input: any, init: any = {}) {
       this.url = typeof input === 'string' ? input : input.url
       this.method = init.method || 'GET'
@@ -26,6 +32,12 @@ if (typeof global.Request === 'undefined') {
 
 if (typeof global.Response === 'undefined') {
   global.Response = class Response {
+    body: any;
+    status: number;
+    statusText: string;
+    headers: Headers;
+    ok: boolean;
+
     constructor(body: any, init: any = {}) {
       this.body = body
       this.status = init.status || 200

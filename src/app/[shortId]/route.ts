@@ -63,16 +63,18 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     // Increment click count atomically using SQL (don't wait for it to complete)
     // This ensures the redirect happens immediately without delay and prevents race conditions
-    supabaseAdmin
-      .rpc('increment_click_count', { short_code_param: shortId })
-      .then(({ error: updateError }) => {
+    (async () => {
+      try {
+        const { error: updateError } = await supabaseAdmin
+          .rpc('increment_click_count', { short_code_param: shortId });
+
         if (updateError) {
           console.error('Failed to increment click count for', shortId, ':', updateError);
         }
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error('Unexpected error incrementing click count for', shortId, ':', error);
-      });
+      }
+    })();
 
     // Redirect to the long URL with 307 (temporary redirect)
     return NextResponse.redirect(data.long_url, 307);

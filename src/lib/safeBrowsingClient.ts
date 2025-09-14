@@ -249,7 +249,7 @@ export class SafeBrowsingClient {
     });
     
     // Update rate limit info from response headers
-    this.updateRateLimitInfo(response);
+    this.updateRateLimitInfo();
     
     if (!response.ok) {
       const errorText = await response.text();
