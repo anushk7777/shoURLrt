@@ -39,6 +39,12 @@ describe('URL Redirection API', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    // Mock console methods to prevent test output pollution
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   it('should redirect to the long URL when short URL exists', async () => {

@@ -1,0 +1,46 @@
+# <!-- Powered by BMAD™ Core -->
+template:
+  id: qa-gate-template-v1
+  name: Quality Gate Decision
+  version: 1.0
+  output:
+    format: yaml
+    filename: qa.qaLocation/gates/{{epic_num}}.{{story_num}}-{{story_slug}}.yml
+    title: 'Quality Gate: {{epic_num}}.{{story_num}}'
+
+# Required fields (keep these first)
+schema: 1
+story: '1.3'
+story_title: 'Short Code Generation Service'
+gate: 'PASS'
+status_reason: 'All acceptance criteria met, comprehensive test coverage, and no critical issues identified.'
+reviewer: 'Dev Agent'
+updated: '2024-07-30T12:00:00Z'
+
+# Always present but only active when WAIVED
+waiver: { active: false }
+
+# Issues (if any) - Use fixed severity: low | medium | high
+top_issues: []
+
+# Risk summary (from risk-profile task if run)
+risk_summary:
+  totals: { critical: 0, high: 0, medium: 0, low: 0 }
+  recommendations:
+    must_fix: []
+    monitor: []
+
+# Optional Extended Fields
+quality_score: 95
+expires: '2025-07-30T12:00:00Z'
+evidence:
+  tests_reviewed: 32
+  risks_identified: 0
+  trace:
+    ac_covered: [1, 2]
+    ac_gaps: []
+nfr_validation:
+  security: { status: PASS, notes: "" }
+  performance: { status: PASS, notes: "" }
+  reliability: { status: PASS, notes: "" }
+  maintainability: { status: PASS, notes: "" }

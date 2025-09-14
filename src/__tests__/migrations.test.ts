@@ -10,11 +10,23 @@
  */
 
 import { createLinksTable, validateLinksTable, rollbackLinksTable } from '../lib/migrations';
-import { supabase } from '../lib/supabase';
+import { supabase, supabaseAdmin } from '../lib/supabase';
 
-// Mock Supabase for testing
+// Mock Supabase client
 jest.mock('../lib/supabase', () => ({
   supabase: {
+    rpc: jest.fn(),
+    from: jest.fn(() => ({
+      select: jest.fn(() => ({
+        limit: jest.fn(() => Promise.resolve({ data: [], error: null }))
+      })),
+      insert: jest.fn(() => Promise.resolve({ data: null, error: null })),
+      delete: jest.fn(() => ({
+        eq: jest.fn(() => Promise.resolve({ data: null, error: null }))
+      }))
+    }))
+  },
+  supabaseAdmin: {
     rpc: jest.fn(),
     from: jest.fn(() => ({
       select: jest.fn(() => ({
@@ -36,7 +48,7 @@ describe('Database Migrations - Story 1.2', () => {
   describe('createLinksTable', () => {
     it('should create links table successfully', async () => {
       // Mock successful RPC call
-      (supabase.rpc as jest.Mock).mockResolvedValue({
+      (supabaseAdmin.rpc as jest.Mock).mockResolvedValue({
         data: null,
         error: null
       });
@@ -45,14 +57,14 @@ describe('Database Migrations - Story 1.2', () => {
 
       expect(result.success).toBe(true);
       expect(result.message).toContain('Links table created successfully');
-      expect(supabase.rpc).toHaveBeenCalledWith('exec_sql', {
+      expect(supabaseAdmin.rpc).toHaveBeenCalledWith('exec_sql', {
         sql_query: expect.stringContaining('CREATE TABLE IF NOT EXISTS public.links')
       });
     });
 
     it('should handle RPC errors gracefully', async () => {
       // Mock RPC error
-      (supabase.rpc as jest.Mock).mockResolvedValue({
+      (supabaseAdmin.rpc as jest.Mock).mockResolvedValue({
         data: null,
         error: { message: 'Permission denied' }
       });
@@ -75,14 +87,14 @@ describe('Database Migrations - Story 1.2', () => {
     });
 
     it('should validate table schema requirements', async () => {
-      (supabase.rpc as jest.Mock).mockResolvedValue({
+      (supabaseAdmin.rpc as jest.Mock).mockResolvedValue({
         data: null,
         error: null
       });
 
       await createLinksTable();
 
-      const sqlCall = (supabase.rpc as jest.Mock).mock.calls[0][1].sql_query;
+      const sqlCall = (supabaseAdmin.rpc as jest.Mock).mock.calls[0][1].sql_query;
       
       // Verify all required columns are present
       expect(sqlCall).toContain('short_code TEXT PRIMARY KEY');
